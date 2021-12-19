@@ -18,4 +18,7 @@ proc-macro = true
 proc-macro2 = "1.0"
 syn = { version = "1.0.81", features = ["full", "extra-traits"] }
 quote = "1.0.10"
-syn-helpers = "0.1.0"
+syn-helpers = "0.2.0"
+
+[features]
+auto-debug-single-tuple-inline = []

@@ -5,8 +5,8 @@ use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 
 use syn_helpers::{
-    visit_all_variants_of_data, BuildPair, Field, Fields, NamedField, PrefixAndPostfix, Trait,
-    TraitMethod,
+    build_implementation_over_structure, BuildPair, Field, Fields, NamedField, NamedOrUnnamedField,
+    PrefixAndPostfix, Trait, TraitMethod,
 };
 
 const IGNORE_DEBUG: &str = "debug_ignore";
@@ -14,11 +14,11 @@ const SINGLE_TUPLE_INLINE: &str = "debug_single_tuple_inline";
 const DEBUG_AS_DISPLAY: &str = "debug_as_display";
 
 #[proc_macro_derive(
-    DebugMore,
+    DebugExtras,
     attributes(debug_single_tuple_inline, debug_as_display, debug_ignore)
 )]
-pub fn debug_more(input: TokenStream) -> TokenStream {
-    let data = parse_macro_input!(input as DeriveInput);
+pub fn debug_extras(input: TokenStream) -> TokenStream {
+    let structure = parse_macro_input!(input as DeriveInput);
 
     // Debug trait
     let debug_trait = Trait {
@@ -30,18 +30,19 @@ pub fn debug_more(input: TokenStream) -> TokenStream {
                 parse_quote!(&self),
                 parse_quote!(f: &mut ::std::fmt::Formatter<'_>),
             ],
+            method_generics: vec![],
             return_type: Some(parse_quote!(::std::fmt::Result)),
             build_pair: BuildPair::NoPairing,
         }],
     };
 
-    visit_all_variants_of_data(
-        &data,
+    build_implementation_over_structure(
+        &structure,
         debug_trait,
         |_, _| Ok(PrefixAndPostfix::default()),
         |method_name, fields| {
             if method_name == "fmt" {
-                debug_more_impl(fields)
+                debug_extras_impl(fields)
             } else {
                 unreachable!()
             }
@@ -51,27 +52,35 @@ pub fn debug_more(input: TokenStream) -> TokenStream {
 }
 
 #[derive(Debug)]
-enum DebugMoreErrors {
+enum DebugExtrasErrors {
     DebugSingleTupleInlineInvalidStructure,
 }
 
-impl Display for DebugMoreErrors {
+impl Display for DebugExtrasErrors {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            DebugMoreErrors::DebugSingleTupleInlineInvalidStructure => {
+            DebugExtrasErrors::DebugSingleTupleInlineInvalidStructure => {
                 f.write_str("Must be tuple struct with one item")
             }
         }
     }
 }
 
-impl Error for DebugMoreErrors {}
+impl Error for DebugExtrasErrors {}
 
-fn debug_more_impl(fields: &mut Fields) -> Result<Vec<Stmt>, Box<dyn Error>> {
-    let debug_single_tuple_inline = fields
-        .get_structure()
-        .all_attributes()
-        .any(|attr| attr.path.is_ident(SINGLE_TUPLE_INLINE));
+fn debug_extras_impl(fields: &mut Fields) -> Result<Vec<Stmt>, Box<dyn Error>> {
+    let auto_debug_tuple_inline = cfg!(feature = "auto-debug-single-tuple-inline")
+        && fields.fields_iterator().len() == 1
+        && matches!(
+            fields.fields_iterator().next().unwrap(),
+            NamedOrUnnamedField::Unnamed(..)
+        );
+
+    let debug_single_tuple_inline = auto_debug_tuple_inline
+        || fields
+            .get_structure()
+            .all_attributes()
+            .any(|attr| attr.path.is_ident(SINGLE_TUPLE_INLINE));
 
     let expr: Expr = if debug_single_tuple_inline {
         if let Fields::Unnamed {
@@ -88,12 +97,12 @@ fn debug_more_impl(fields: &mut Fields) -> Result<Vec<Stmt>, Box<dyn Error>> {
                 parse_quote! { f.write_fmt(format_args!(#formatting_pattern, #read_expr)) }
             } else {
                 return Err(Box::new(
-                    DebugMoreErrors::DebugSingleTupleInlineInvalidStructure,
+                    DebugExtrasErrors::DebugSingleTupleInlineInvalidStructure,
                 ));
             }
         } else {
             return Err(Box::new(
-                DebugMoreErrors::DebugSingleTupleInlineInvalidStructure,
+                DebugExtrasErrors::DebugSingleTupleInlineInvalidStructure,
             ));
         }
     } else {
