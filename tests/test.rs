@@ -1,3 +1,4 @@
+#![allow(unused)]
 use derive_debug_extras::DebugExtras;
 
 #[derive(DebugExtras)]

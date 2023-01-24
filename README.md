@@ -1,6 +1,7 @@
 # Derive debug extras
 
-![](https://img.shields.io/crates/v/derive-debug-extras)
+[![](https://img.shields.io/crates/v/derive-debug-extras)](https://crates.io/crates/derive-debug-extras)
+[![](https://img.shields.io/docsrs/derive-debug-extras)](https://docs.rs/crate-name/latest)
 
 More customisable `#[derive(Debug)]`
 
