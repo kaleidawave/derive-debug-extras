@@ -15,7 +15,7 @@ proc-macro = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-syn-helpers = "0.4.0"
+syn-helpers = "0.4.1"
 
 [features]
 auto-debug-single-tuple-inline = []
