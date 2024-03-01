@@ -1,21 +1,27 @@
 [package]
 name = "derive-debug-extras"
 description = "More customisable #[derive(Debug)]"
-authors = [ "Ben <kaleidawave@gmail.com>" ]
-categories = [ "rust-patterns" ]
+authors = ["Ben <kaleidawave@gmail.com>"]
+categories = ["rust-patterns"]
 license = "MIT"
 repository = "https://github.com/kaleidawave/derive-debug-extras"
 version = "0.2.2"
-edition = "2018"
+edition = "2021"
+keywords = ["derive", "debug", "extras"]
 
 [lib]
+path = "lib.rs"
 name = "derive_debug_extras"
 proc-macro = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[workspace.lints.clippy]
+all = "deny"
+pedantic = "deny"
+
 [dependencies]
-syn-helpers = "0.4.1"
+syn-helpers = "0.5"
 
 [features]
 auto-debug-single-tuple-inline = []

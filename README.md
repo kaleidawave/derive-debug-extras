@@ -1,13 +1,13 @@
 # Derive debug extras
 
-[![](https://img.shields.io/crates/v/derive-debug-extras)](https://crates.io/crates/derive-debug-extras)
-[![](https://img.shields.io/docsrs/derive-debug-extras)](https://docs.rs/derive-debug-extras/latest)
+[![crates.io badge](https://img.shields.io/crates/v/derive-debug-extras?style=flat-square)](https://crates.io/crates/derive-debug-extras)
+[![docs.rs badge](https://img.shields.io/docsrs/derive-debug-extras?style=flat-square)](https://docs.rs/derive-debug-extras/latest)
 
 More customisable `#[derive(Debug)]`
 
 Adds three options:
 
-### `#[debug_single_tuple_inline]`
+## `#[debug_single_tuple_inline]`
 
 ```rust
 use derive_debug_extras::DebugExtras;
@@ -17,16 +17,11 @@ use derive_debug_extras::DebugExtras;
 struct A(pub u32);
 ```
 
-Verbose debugging on `A` retains single line under verbose. 
+Verbose debugging on `A` retains single line under verbose.
 
 e.g. for `println!("{:#?}", vec![A(123), A(145), A(125),])`
+
 ```rust
-// With #[debug_single_tuple_inline]
-[
-    A(123),
-    A(145),
-    A(125),
-]
 // Without #[debug_single_tuple_inline]
 [
     A(
@@ -38,6 +33,12 @@ e.g. for `println!("{:#?}", vec![A(123), A(145), A(125),])`
     A(
         125
     ),
+]
+// With #[debug_single_tuple_inline]
+[
+    A(123),
+    A(145),
+    A(125),
 ]
 ```
 
@@ -71,6 +72,7 @@ struct D {
 Prints the `x` field out as if it was formatted with `Display`
 
 e.g. for `println!("{:#?}", D("Hello World".to_string()))`
+
 ```rust
 // With #[debug_as_display]
 D(Hello World)

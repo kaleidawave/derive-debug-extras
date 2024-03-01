@@ -32,7 +32,7 @@ pub fn debug_extras(input: TokenStream) -> TokenStream {
 
                 let inline_tuple_attribute = constructable
                     .all_attributes()
-                    .any(|attr| attr.path.is_ident(SINGLE_TUPLE_INLINE));
+                    .any(|attr| attr.path().is_ident(SINGLE_TUPLE_INLINE));
 
                 let fields = &mut constructable.get_fields_mut();
 
@@ -74,12 +74,12 @@ pub fn debug_extras(input: TokenStream) -> TokenStream {
                             for field in fields.iter_mut() {
                                 let mut expr = field.get_reference();
                                 let NamedField { attrs, name, .. } = &field;
-                                if attrs.iter().any(|attr| attr.path.is_ident(IGNORE_DEBUG)) {
+                                if attrs.iter().any(|attr| attr.path().is_ident(IGNORE_DEBUG)) {
                                     continue;
                                 }
                                 if attrs
                                     .iter()
-                                    .any(|attr| attr.path.is_ident(DEBUG_AS_DISPLAY))
+                                    .any(|attr| attr.path().is_ident(DEBUG_AS_DISPLAY))
                                 {
                                     expr = parse_quote! { format_args!("{}", &#expr) };
                                 }
@@ -98,14 +98,14 @@ pub fn debug_extras(input: TokenStream) -> TokenStream {
                                 if field
                                     .attrs
                                     .iter()
-                                    .any(|attr| attr.path.is_ident(IGNORE_DEBUG))
+                                    .any(|attr| attr.path().is_ident(IGNORE_DEBUG))
                                 {
                                     continue;
                                 }
                                 if field
                                     .attrs
                                     .iter()
-                                    .any(|attr| attr.path.is_ident(DEBUG_AS_DISPLAY))
+                                    .any(|attr| attr.path().is_ident(DEBUG_AS_DISPLAY))
                                 {
                                     expr = parse_quote! { format_args!("{}", &#expr) };
                                 }
@@ -123,7 +123,7 @@ pub fn debug_extras(input: TokenStream) -> TokenStream {
                         #builder.finish()
                     }
                 };
-                Ok(vec![Stmt::Expr(expr)])
+                Ok(vec![Stmt::Expr(expr, None)])
             })
         },
     );
